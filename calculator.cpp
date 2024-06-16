@@ -11,6 +11,9 @@ const int buttonSpacing = 14;
 const int startY = 70;
 const int rowSpacing = 10; 
 
+//If true, addition and subtraction, else multiplication and division
+bool modeSimple = true;
+
 char textBoxText[256] = "0";
 bool operationSet = false;
 char currentOperation = '\0';
@@ -29,11 +32,13 @@ Rectangle oneNumber = {startX, startY, buttonWidth, buttonHeight};
 Rectangle twoNumber = {startX + buttonWidth + buttonSpacing, startY, buttonWidth, buttonHeight};
 Rectangle threeNumber = {startX + (buttonWidth + buttonSpacing) * 2, startY, buttonWidth, buttonHeight};
 Rectangle addition = {startX + (buttonWidth + buttonSpacing) * 3, startY, buttonWidth, buttonHeight};
+Rectangle mult = {startX + (buttonWidth + buttonSpacing) * 3, startY, buttonWidth, buttonHeight};
 
 Rectangle fourNumber = {startX, startY + (buttonHeight + rowSpacing) * 1, buttonWidth, buttonHeight};
 Rectangle fiveNumber = {startX + buttonWidth + buttonSpacing, startY + (buttonHeight + rowSpacing), buttonWidth, buttonHeight};
 Rectangle sixNumber = {startX + (buttonWidth + buttonSpacing) * 2, startY + (buttonHeight + rowSpacing), buttonWidth, buttonHeight};
 Rectangle subtraction = {startX + (buttonWidth + buttonSpacing) * 3, startY + (buttonHeight + rowSpacing), buttonWidth, buttonHeight};
+Rectangle division = {startX + (buttonWidth + buttonSpacing) * 3, startY + (buttonHeight + rowSpacing), buttonWidth, buttonHeight};
 
 Rectangle sevenNumber = {startX, startY + (buttonHeight + rowSpacing) * 2, buttonWidth, buttonHeight};
 Rectangle eightNumber = {startX + buttonWidth + buttonSpacing, startY + (buttonHeight + rowSpacing) * 2, buttonWidth, buttonHeight};
@@ -62,9 +67,8 @@ int main(void){
 void DrawCalculator(void)
 {
     BeginDrawing();
-        ClearBackground(WHITE);
+        ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
         GuiTextBox(textBox, textBoxText, 256, false);
-
         if(GuiButton(oneNumber, "1")) {
             if (!operationSet) {
                 operand1 = operand1 * 10 + 1;
@@ -160,23 +164,22 @@ void DrawCalculator(void)
         }
 
         // Operations
-        if (GuiButton(addition, "+")) {
-            operationSet = true;
-            currentOperation = '+';
-            sprintf(textBoxText, "PLUS");
-        }
-        if (GuiButton(subtraction, "-")) {
-            operationSet = true;
-            currentOperation = '-';
-            sprintf(textBoxText, "MINUS");
-        }
         if (GuiButton(equals, "=")) {
              switch (currentOperation) {
                 case '+':
                     sprintf(textBoxText, "%d", operand1 + operand2);
                 break;
+
                 case '-':
                     sprintf(textBoxText, "%d", operand1 - operand2);
+                break;
+
+                case '*':
+                sprintf(textBoxText, "%d", operand1 * operand2);
+                break;
+
+                case '/':
+                sprintf(textBoxText, "%d", operand1 / operand2);
                 break;
         }
         operand1 = atoi(textBoxText);
@@ -188,12 +191,37 @@ void DrawCalculator(void)
         operand1 = 0;
         operand2 = 0;
         operationSet = false;
-    }
-        
+    } 
     EndDrawing();
 }
 
 void UpdateCalculator(void)
 {
+    if(IsKeyPressed(KEY_TAB)) {
+        modeSimple = !modeSimple;
+    }
 
+    if(modeSimple){
+        if (GuiButton(addition, "+")) {
+            operationSet = true;
+            currentOperation = '+';
+            sprintf(textBoxText, "PLUS");
+        }
+        if (GuiButton(subtraction, "-")) {
+            operationSet = true;
+            currentOperation = '-';
+            sprintf(textBoxText, "MINUS");
+        }
+    } else {
+        if (GuiButton(mult, "*")) {
+            operationSet = true;
+            currentOperation = '*';
+            sprintf(textBoxText, "MULTIPLIED BY");
+        }
+        if (GuiButton(division, "/")) {
+            operationSet = true;
+            currentOperation = '/';
+            sprintf(textBoxText, "DIVIDED BY");
+        }
+    }
 }
